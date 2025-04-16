@@ -19,11 +19,11 @@ const ParkingLevel = ({ spaces, levelNumber }: ParkingLevelProps) => {
         </span>
       </div>
       <div className="grid grid-cols-6 gap-8 p-6 bg-white rounded-lg shadow-sm">
-        {spaces.map((space) => (
+        {spaces.map((space, index) => (
           <ParkingSpace
             key={space.id}
             isOccupied={space.isOccupied}
-            spaceNumber={space.id % 30 + 1}
+            spaceNumber={index + 1}
           />
         ))}
       </div>
