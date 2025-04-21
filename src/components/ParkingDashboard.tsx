@@ -9,13 +9,16 @@ import { useNavigate } from "react-router-dom";
 
 const ParkingDashboard = () => {
   const [parkingLevels, setParkingLevels] = useState<ParkingLevelType[]>(() => {
-    // Initialize parking data
+    // Initialize parking data with the correct structure
     return Array.from({ length: 3 }, (_, levelIndex) => ({
-      level: levelIndex + 1,
-      spaces: Array.from({ length: 30 }, (_, spaceIndex) => ({
-        id: levelIndex * 30 + spaceIndex + 1,
-        level: levelIndex + 1,
+      levelNumber: levelIndex + 1,
+      totalSpots: 30,
+      availableSpots: 15, // Example value
+      occupiedSpots: 15, // Example value
+      spots: Array.from({ length: 30 }, (_, spaceIndex) => ({
+        spotNumber: spaceIndex + 1,
         isOccupied: Math.random() < 0.5, // Randomly set occupancy for demo
+        registrationNumber: undefined
       })),
     }));
   });
@@ -48,19 +51,59 @@ const ParkingDashboard = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Parking Dashboard</h1>
-      <Button onClick={() => navigate('/data')}>Data</Button>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Parking Dashboard</h1>
+        <Button onClick={() => navigate('/data')} variant="outline">
+          View Data
+        </Button>
+      </div>
+
+      <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-blue-50 p-4 rounded">
+          <p className="text-sm text-blue-600">Total Spots</p>
+          <p className="text-2xl font-bold">{parkingLevels.reduce((acc, level) => acc + level.totalSpots, 0)}</p>
+        </div>
+        <div className="bg-green-50 p-4 rounded">
+          <p className="text-sm text-green-600">Available</p>
+          <p className="text-2xl font-bold">{parkingLevels.reduce((acc, level) => acc + level.availableSpots, 0)}</p>
+        </div>
+        <div className="bg-red-50 p-4 rounded">
+          <p className="text-sm text-red-600">Occupied</p>
+          <p className="text-2xl font-bold">{parkingLevels.reduce((acc, level) => acc + level.occupiedSpots, 0)}</p>
+        </div>
+        <div className="bg-purple-50 p-4 rounded">
+          <p className="text-sm text-purple-600">Occupancy Rate</p>
+          <p className="text-2xl font-bold">
+            {((parkingLevels.reduce((acc, level) => acc + level.occupiedSpots, 0) / 
+              parkingLevels.reduce((acc, level) => acc + level.totalSpots, 0)) * 100).toFixed(1)}%
+          </p>
+        </div>
+      </div>
+
       <Tabs defaultValue="1" className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-8">
           {parkingLevels.map((level) => (
-            <TabsTrigger key={level.level} value={level.level.toString()}>
-              Level {level.level}
+            <TabsTrigger 
+              key={level.levelNumber} 
+              value={level.levelNumber.toString()}
+              className="flex flex-col gap-1"
+            >
+              <span>Level {level.levelNumber}</span>
+              <span className="text-sm text-muted-foreground">
+                {level.availableSpots} available
+              </span>
             </TabsTrigger>
           ))}
         </TabsList>
         {parkingLevels.map((level) => (
-          <TabsContent key={level.level} value={level.level.toString()}>
-            <ParkingLevel spaces={level.spaces} levelNumber={level.level} />
+          <TabsContent 
+            key={level.levelNumber} 
+            value={level.levelNumber.toString()}
+          >
+            <ParkingLevel 
+              spaces={level.spots} 
+              levelNumber={level.levelNumber} 
+            />
           </TabsContent>
         ))}
       </Tabs>
